@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Contraseñas Seguras</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f8ff;
+        }
+        .strength-indicator {
+            height: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+        <h1 class="text-3xl font-bold mb-4">Generador de Contraseñas Seguras</h1>
+        <div class="mb-4">
+            <label for="length" class="block mb-2">Longitud de la contraseña:</label>
+            <input type="number" id="length" class="border-2 border-gray-300 p-2 rounded-lg mb-4 text-center" min="16" value="16">
+        </div>
+        <div class="mb-4">
+            <label class="block mb-2">Opciones:</label>
+            <label><input type="checkbox" id="include-numbers" checked> Incluir números</label><br>
+            <label><input type="checkbox" id="include-uppercase" checked> Incluir mayúsculas</label><br>
+            <label><input type="checkbox" id="include-lowercase" checked> Incluir minúsculas</label><br>
+            <label><input type="checkbox" id="include-special" checked> Incluir caracteres especiales</label><br>
+            <label><input type="checkbox" id="include-words" checked> Incluir palabras del diccionario</label>
+        </div>
+        <button onclick="generatePassword()" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Generar Contraseña</button>
+        <div id="password-output" class="text-2xl mt-4"></div>
+        <button onclick="copyToClipboard()" class="bg-green-500 text-white px-4 py-2 rounded-lg mt-4">Copiar al Portapapeles</button>
+        <div id="strength" class="strength-indicator mt-4"></div>
+    </div>
+
+    <script>
+        const words = ["seguro", "fuerte", "contraseña", "aleatorio", "protección", "privacidad", "acceso", "clave"];
+
+        function generatePassword() {
+            const length = document.getElementById('length').value;
+            const includeNumbers = document.getElementById('include-numbers').checked;
+            const includeUppercase = document.getElementById('include-uppercase').checked;
+            const includeLowercase = document.getElementById('include-lowercase').checked;
+            const includeSpecial = document.getElementById('include-special').checked;
+            const includeWords = document.getElementById('include-words').checked;
+
+            const numbers = '0123456789';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const special = '!@#$%^&*()_+[]{}|;:,.<>?';
+
+            let characters = '';
+            if (includeNumbers) characters += numbers;
+            if (includeUppercase) characters += uppercase;
+            if (includeLowercase) characters += lowercase;
+            if (includeSpecial) characters += special;
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+
+            if (includeWords) {
+                const randomWord = words[Math.floor(Math.random() * words.length)];
+                password += randomWord;
+            }
+
+            document.getElementById('password-output').innerText = password;
+            updateStrengthIndicator(password);
+        }
+
+        function copyToClipboard() {
+            const password = document.getElementById('password-output').innerText;
+            navigator.clipboard.writeText(password).then(() => {
+                alert('Contraseña copiada al portapapeles');
+            });
+        }
+
+        function updateStrengthIndicator(password) {
+            const strengthIndicator = document.getElementById('strength');
+            const strength = calculateStrength(password);
+            strengthIndicator.style.width = strength + '%';
+            strengthIndicator.style.backgroundColor = strength > 70 ? 'green' : (strength > 40 ? 'orange' : 'red');
+        }
+
+        function calculateStrength(password) {
+            let strength = 0;
+            if (password.length >= 16) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[a-z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 15;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 10;
+            return strength;
+        }
+    </script>
+</body>
+</html>
